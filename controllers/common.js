@@ -22,20 +22,26 @@ function login(body, connection) {
                     // And done with the connection.
                     // Handle error after the release.
                     if (error) reject(error)
+                    
                     else {
+                    var token = jwt.sign({ email: body.email }, config.jwt.secret_key, { expiresIn: config.jwt.expires_in });
 
-                        var token = jwt.sign({ email: body.email }, config.jwt.secret_key, { expiresIn: config.jwt.expires_in });
+                        getCertificate(body, connection).then(function (response) {
+                            let splitted = response.certificate.cirtificate.split('\n')
+                            let formattedText = ""
+                            for (var i = 0; i < splitted.length; i++) {
+                                formattedText += splitted[i] + '\r\n'
+                            }
 
-                            getCertificate(body, connection).then(function (response) {
-                                user['certificate'] = response.certificate
-                                resolve({ user, token });
-                            },
-                            function (err) {
-                                resolve({ user, token });
-                            })
-                            .catch(function (exception) {
-                                resolve({ user, token });
-                            })
+                            user['certificate'] = formattedText
+                            resolve({ user, token });
+                        },
+                        function (err) {
+                            resolve({ user, token });
+                        })
+                        .catch(function (exception) {
+                            resolve({ user, token });
+                        })
                        
                     }
                 }

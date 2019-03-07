@@ -32,6 +32,7 @@ function login(body, connection) {
                             for (var i = 0; i < splitted.length; i++) {
                                 formattedText += splitted[i] + '\r\n'
                             }
+                            
 
                             user['certificate'] = formattedText
                             resolve({ user, token });

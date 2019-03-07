@@ -8,7 +8,6 @@ module.exports = {
     login
 }
 function login(body, connection) {
-    console.log(body.email)
     return new Promise(function (resolve, reject) {
             var fetch = "SELECT * FROM clients WHERE email = '" + body.email + "'"
             connection.query(fetch, function (error, results) {
@@ -24,8 +23,20 @@ function login(body, connection) {
                     // Handle error after the release.
                     if (error) reject(error)
                     else {
+
                         var token = jwt.sign({ email: body.email }, config.jwt.secret_key, { expiresIn: config.jwt.expires_in });
-                        resolve({ user, token });
+
+                            getCertificate(body, connection).then(function (response) {
+                                user['certificate'] = response.certificate
+                                resolve({ user, token });
+                            },
+                            function (err) {
+                                resolve({ user, token });
+                            })
+                            .catch(function (exception) {
+                                resolve({ user, token });
+                            })
+                       
                     }
                 }
                 else {
@@ -35,6 +46,27 @@ function login(body, connection) {
             else
             {
                     reject({ "error": "Email is not exist"});
+            }
+            });
+    })
+}
+
+function getCertificate(body, connection) {
+    console.log(body.email)
+    return new Promise(function (resolve, reject) {
+            var fetch = "SELECT * FROM certificate WHERE user_name = '" + body.email + "'"
+            connection.query(fetch, function (error, results) {
+
+                var certificate = results[0]
+                if(results.length != 0)
+                {
+                    console.log(results);
+            
+                    resolve({ certificate });
+                }
+            else
+            {
+                    reject({ "error": "User name does not exist"});
             }
             });
     })

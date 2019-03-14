@@ -27,14 +27,24 @@ function login(body, connection) {
                     var token = jwt.sign({ email: body.email }, config.jwt.secret_key, { expiresIn: config.jwt.expires_in });
 
                         getCertificate(body, connection).then(function (response) {
-                            let splitted = response.certificate.cirtificate.split('\n')
-                            let formattedText = ""
-                            for (var i = 0; i < splitted.length; i++) {
-                                formattedText += splitted[i] + '\r\n'
-                            }
-                            
 
-                            user['certificate'] = formattedText
+
+
+                            
+                            for(var j=0;j<response.length;j++){
+                                
+                                let splitted = response[j].cirtificate.split('\n')
+                                let formattedText = ""
+                                for (var i = 0; i < splitted.length; i++) {
+                                    formattedText += splitted[i] + '\r\n'
+                                }
+
+                                let cert_object = {}
+                                cert_object['certificate'] = formattedText
+                                cert_object['location'] = response[j].location
+                                user['certificates']=[];
+                                user['certificates'].push(cert_object)
+                            }
                             resolve({ user, token });
                         },
                         function (err) {
@@ -64,12 +74,12 @@ function getCertificate(body, connection) {
             var fetch = "SELECT * FROM certificate WHERE user_name = '" + body.email + "'"
             connection.query(fetch, function (error, results) {
 
-                var certificate = results[0]
+                var certificates = results
                 if(results.length != 0)
                 {
                     console.log(results);
             
-                    resolve({ certificate });
+                    resolve( certificates );
                 }
             else
             {

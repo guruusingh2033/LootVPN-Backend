@@ -24,4 +24,21 @@ router.post('/login', validator.body(login_schema, joi_options), function (req, 
     })
 })
 
+
+const user_schema = Joi.object({
+  email: Joi.string().required().email(),
+});
+
+router.post('/getsubscription', validator.body(user_schema, joi_options), function (req, res) {
+  common_controller.getSubscription(req.body, db).then(function (response) {
+    res.status(200).send(response)
+  },
+    function (err) {
+      res.status(400).send(err)
+    })
+    .catch(function (exception) {
+      res.status(400).send(exception)
+    })
+})
+
 module.exports = router

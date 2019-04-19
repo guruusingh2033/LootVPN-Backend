@@ -5,7 +5,8 @@ var md5 = require('md5');
 var sha1 = require('sha1');
 
 module.exports = {
-    login
+    login,
+    getSubscription
 }
 function login(body, connection) {
     return new Promise(function (resolve, reject) {
@@ -84,6 +85,26 @@ function getCertificate(body, connection) {
             else
             {
                     reject({ "error": "User name does not exist"});
+            }
+            });
+    })
+}
+
+
+function getSubscription(body, connection) {
+    return new Promise(function (resolve, reject) {
+        var fetch = "SELECT account_status FROM clients WHERE email = '" + body.email + "'"
+            connection.query(fetch, function (error, results) {
+
+                var account_status = results
+                if(account_status.length != 0)
+                {
+            
+                    resolve(account_status[0] );
+                }
+            else
+            {
+                    reject({ "error": "User does not exist"});
             }
             });
     })

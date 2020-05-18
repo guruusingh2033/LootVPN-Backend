@@ -12,7 +12,12 @@ function login(body, connection) {
     return new Promise(function (resolve, reject) {
             var fetch = "SELECT * FROM clients WHERE email = '" + body.email + "'"
             connection.query(fetch, function (error, results) {
-                if(results.length != 0)
+                if (error) {
+                    console.log("error ____",error)
+                    reject({ "error": error });
+
+                }
+                else if(results.length != 0)
                 {
                 var encriptpassword = sha1(body.password);
                 console.log(encriptpassword);

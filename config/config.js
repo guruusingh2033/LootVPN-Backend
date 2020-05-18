@@ -1,9 +1,9 @@
 var config = {};
 
 config.database = {};
-config.database.db_host_name = '3.104.50.212';
-config.database.db_master_user = 'lootvpn';
-config.database.db_master_password = 'KuCez36L9A!';
+config.database.db_host_name = '139.99.213.14';
+config.database.db_master_user = 'gurvinder';
+config.database.db_master_password = 'P9uMtN$pV5!c87';
 config.database.db_name = 'lootvpn';
 config.database.port= '3306';
 

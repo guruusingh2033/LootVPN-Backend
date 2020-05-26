@@ -7,6 +7,8 @@
 var app = require('../app');
 var debug = require('debug')('vpn-loot-backend:server');
 var http = require('http');
+const common_controller = require('../controllers/common.js');
+const db = require('../db.js');
 
 /**
  * Get port from environment and store in Express.
@@ -20,6 +22,26 @@ app.set('port', port);
  */
 
 var server = http.createServer(app);
+
+var io = require('socket.io')(server);//here we initialized the socket.io
+
+io.on('connection', function (socket) {
+  console.log('socket User connected');
+  socket.on('disconnect', function () {
+      console.log('socket User disconnected');
+  });
+
+  socket.on('update-request', function (data) {
+    common_controller.getLatestVersion(db).then(
+      function (res) {
+        socket.emit('update', res);
+      },
+      function (err) {
+        socket.emit('update', err);
+      }
+    );
+  });
+});
 
 /**
  * Listen on provided port, on all network interfaces.

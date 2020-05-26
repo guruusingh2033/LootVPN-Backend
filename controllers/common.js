@@ -6,7 +6,8 @@ var sha1 = require('sha1');
 
 module.exports = {
     login,
-    getSubscription
+    getSubscription,
+    getLatestVersion
 }
 function login(body, connection) {
     return new Promise(function (resolve, reject) {
@@ -32,11 +33,11 @@ function login(body, connection) {
                     else {
                     var token = jwt.sign({ email: body.email }, config.jwt.secret_key, { expiresIn: config.jwt.expires_in });
 
-                        getCertificate(body, connection).then(function (response) {
+                        getCertificate(user.client_id, connection).then(function (response) {
 
 
 
-                            
+                            user['certificates']=[];
                             for(var j=0;j<response.length;j++){
                                 
                                 let splitted = response[j].cirtificate.split('\n')
@@ -48,7 +49,6 @@ function login(body, connection) {
                                 let cert_object = {}
                                 cert_object['certificate'] = formattedText
                                 cert_object['location'] = response[j].location
-                                user['certificates']=[];
                                 user['certificates'].push(cert_object)
                             }
                             resolve({ user, token });
@@ -74,10 +74,10 @@ function login(body, connection) {
     })
 }
 
-function getCertificate(body, connection) {
-    console.log(body.email)
+function getCertificate(clientId, connection) {
+    console.log('Client Id to get certificates: ', clientId);
     return new Promise(function (resolve, reject) {
-            var fetch = "SELECT * FROM certificate WHERE user_name = '" + body.email + "'"
+            var fetch = "SELECT * FROM certificate WHERE uid = " + clientId;
             connection.query(fetch, function (error, results) {
 
                 var certificates = results
@@ -115,4 +115,18 @@ function getSubscription(body, connection) {
     })
 }
 
-
+function getLatestVersion(connection) {
+    return new Promise(function (resolve, reject) {
+        var fetch = 'SELECT * FROM Version_History ORDER BY id DESC LIMIT 1';
+        connection.query(fetch, function (error, results) {
+            console.log('Latest Version --- ', results);
+            if (error) {
+                reject({ error: 'Versions does not exist' });
+            } else if (results.length != 0) {
+                resolve(results[0]);
+            } else {
+                reject({ error: 'Versions does not exist' });
+            }
+        });
+    });
+}
